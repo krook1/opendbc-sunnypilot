@@ -71,8 +71,8 @@ def process_hud(enabled, active, leftBs, rightBs, hud_control):
 
 
 class CarController(CarControllerBase):
-  def __init__(self, dbc_names, CP):
-    super().__init__(dbc_names, CP)
+  def __init__(self, dbc_names, CP, CP_SP):
+    super().__init__(dbc_names, CP, CP_SP)
 
     self.params = CarControllerParams(CP)
     self.apply_torque_last = 0
@@ -83,7 +83,7 @@ class CarController(CarControllerBase):
     self.lrflag = 0
     self.main_on_last = False
 
-  def update(self, CC, CS, now_nanos):
+  def update(self, CC, CC_SP, CS, now_nanos):
     actuators = CC.actuators
     hud_control = CC.hudControl
 

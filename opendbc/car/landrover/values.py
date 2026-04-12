@@ -64,8 +64,8 @@ class CarControllerParams:
 
 
 class CanBus:
-  UNDERBODY = 0
-  CAN2FLEXRAY = 1
+  UNDERBODY = 1
+  CAN2FLEXRAY = 5
   CAM = 2
 
 

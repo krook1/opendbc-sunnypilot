@@ -5,13 +5,14 @@ from opendbc.can.parser import CANParser
 from opendbc.car import Bus, structs, create_button_events
 from opendbc.car.interfaces import CarStateBase
 from opendbc.car.landrover.values import DBC, CanBus, CarControllerParams, LandroverFlags
+from opendbc.sunnypilot.car.landrover.mads import MadsCarState
 
 ButtonType = structs.CarState.ButtonEvent.Type
 
 
-class CarState(CarStateBase):
-  def __init__(self, CP):
-    super().__init__(CP)
+class CarState(CarStateBase, MadsCarState):
+  def __init__(self, CP, CP_SP):
+    super().__init__(CP, CP_SP)
     can_define = CANDefine(DBC[CP.carFingerprint]["pt"])
 
     if CP.flags & LandroverFlags.FLEXRAY_HARNESS:
@@ -23,9 +24,9 @@ class CarState(CarStateBase):
     self.params = CarControllerParams(CP)
     self.wheelbase = CP.wheelbase
 
-    self.lc_button = 0
+    self.lkas_button = 0
 
-  def update(self, can_parsers) -> structs.CarState:
+  def update(self, can_parsers) -> tuple[structs.CarState, structs.CarStateSP]:
     if self.CP.flags & LandroverFlags.FLEXRAY_HARNESS:
       return self.update_can_defender(can_parsers)
 
@@ -90,10 +91,11 @@ class CarState(CarStateBase):
 
     return ret
 
-  def update_can_defender(self, can_parsers) -> structs.CarState:
+  def update_can_defender(self, can_parsers) -> tuple[structs.CarState, structs.CarStateSP]:
     cp = can_parsers[Bus.pt]
 
     ret = structs.CarState()
+    ret_sp = structs.CarStateSP()
 
     self.is_metric = True
     #speed_factor = CV.KPH_TO_MS if self.is_metric else CV.MPH_TO_MS
@@ -146,22 +148,22 @@ class CarState(CarStateBase):
     ret.cruiseState.nonAdaptive = False
     ret.cruiseState.standstill = False
 
-    prev_lc_button = self.lc_button
-    self.lc_button = bool(cp.vl["LKAS_BTN"]["LKAS_Btn_on"])
-    ret.cruiseState.available = self.lc_button
+    prev_lkas_button = self.lkas_button
+    self.lkas_button = bool(cp.vl["LKAS_BTN"]["LKAS_Btn_on"])
+    ret.cruiseState.available = self.lkas_button
 
     ret.buttonEvents = [
-      *create_button_events(self.lc_button, prev_lc_button, {1: ButtonType.lkas}),
+      *create_button_events(self.lkas_button, prev_lkas_button, {1: ButtonType.lkas}),
     ]
 
-    return ret
+    return ret, ret_sp
 
   def get_can_parser_defender(self, CP):
     return {
       Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], [], CanBus.UNDERBODY),
     }
 
-  def get_can_parsers(self, CP):
+  def get_can_parsers(self, CP, CP_SP):
     if CP.flags & LandroverFlags.FLEXRAY_HARNESS:
       return self.get_can_parser_defender(CP)
 
