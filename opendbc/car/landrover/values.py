@@ -156,7 +156,7 @@ class LandroverFlexrayPlatformConfig(PlatformConfig):
 @dataclass
 class LandroverFlexrayPlatformConfig(PlatformConfig):
   dbc_dict: DbcDict = field(default_factory=lambda: {
-    Bus.pt: "landrover_defender_2023"})
+    Bus.radar: "landrover_defender_2023"})
   wmis: set[WMI] = field(default_factory=set)
   lines: set[ModelLine] = field(default_factory=set)
   years: set[ModelYear] = field(default_factory=set)
@@ -170,7 +170,8 @@ class CAR(Platforms):
     [
       LandroverCarDocs("RANGEROVER EVOQUE 2021"),
     ],
-    CarSpecs(mass=2500, wheelbase=2.922, steerRatio=16.5),
+    #Needs to be changed
+    CarSpecs(mass=2550, wheelbase=3.022, steerRatio=19.0, minSteerSpeed=50*CV.KPH_TO_MS),
     wmis=(WMI.LANDROVER),
     lines={ModelLine.L551},
     years={ModelYear.M_2021},

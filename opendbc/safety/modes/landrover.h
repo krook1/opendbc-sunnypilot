@@ -12,7 +12,7 @@ static bool landrover_flexray_harness = true;
 
 static void landrover_rx_hook(const CANPacket_t *msg) {
   if (landrover_flexray_harness) {
-    if (msg->bus == 0U)  {
+    if (msg->bus == 1U)  {
       #ifndef FLEXRAY_USE_PSCM_OUT
       // Steering angle: (0.1 * val) - 780 in deg.
       if (msg->addr == 0x56) {
@@ -100,7 +100,7 @@ static bool landrover_tx_hook(const CANPacket_t *msg) {
 
   if (landrover_flexray_harness) {
 
-    if (msg->bus == 1U) {
+    if (msg->bus == 5U) {
 
       // Steering control 
       // (0.076 * val) - 684 in deg.
@@ -139,9 +139,9 @@ static safety_config landrover_init(uint16_t param) {
   // CAN messages for OP to Flexray board
   // 0x1F0 = LkasCmd, 0x1F1 = ACC
   static const CanMsg LANDROVER_FLEXRAY_TX_MSGS[] = {
-     {0x1F0, 1, 8, .check_relay = false},
-     {0x1F9, 1, 8, .check_relay = false},
-     {0x1BE, 0, 8, .check_relay = true, .disable_static_blocking = true}, // check for relay
+     {0x1F0, 5, 8, .check_relay = false},
+     {0x1F9, 5, 8, .check_relay = false},
+     {0x1BE, 1, 8, .check_relay = true, .disable_static_blocking = true}, // check for relay
   };
 
 #ifdef _RR_2017_
@@ -155,16 +155,16 @@ static safety_config landrover_init(uint16_t param) {
 #endif
 
   static RxCheck landrover_flexray_rx_checks[] = {
-    {.msg = {{0x24, 0, 8, 15U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},   // LKAS_btn 
+    {.msg = {{0x24, 1, 8, 15U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},   // LKAS_btn 
 #ifndef FLEXRAY_USE_PSCM_OUT
-    {.msg = {{0x56, 0, 8, 100U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},
+    {.msg = {{0x56, 1, 8, 100U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},
 #else
-    {.msg = {{0x32, 0, 8, 50U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},   // PSCM_Out (angleTorque)
+    {.msg = {{0x32, 1, 8, 50U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},   // PSCM_Out (angleTorque)
 #endif
-    {.msg = {{0x11, 0, 8, 25U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},    // Speed Info02 
-    {.msg = {{0x189, 0, 8, 10U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},   // GasPedal (gas pedal)
-    {.msg = {{0x84, 0, 8, 50U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},    // StopAndGo (brakes)
-    {.msg = {{258, 0, 8, 25U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},     // CruiseInfo (cruise state)
+    {.msg = {{0x11, 1, 8, 25U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},    // Speed Info02 
+    {.msg = {{0x189, 1, 8, 10U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},   // GasPedal (gas pedal)
+    {.msg = {{0x84, 1, 8, 50U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},    // StopAndGo (brakes)
+    {.msg = {{0x102, 1, 8, 15U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},     // CruiseInfo (cruise state)
   };
 
 

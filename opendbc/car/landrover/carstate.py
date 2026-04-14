@@ -13,7 +13,7 @@ ButtonType = structs.CarState.ButtonEvent.Type
 class CarState(CarStateBase, MadsCarState):
   def __init__(self, CP, CP_SP):
     super().__init__(CP, CP_SP)
-    can_define = CANDefine(DBC[CP.carFingerprint]["pt"])
+    can_define = CANDefine(DBC[CP.carFingerprint]["radar"])
 
     if CP.flags & LandroverFlags.FLEXRAY_HARNESS:
       self.shifter_values = can_define.dv["GearPRND"]["PRND"]
@@ -92,7 +92,7 @@ class CarState(CarStateBase, MadsCarState):
     return ret
 
   def update_can_defender(self, can_parsers) -> tuple[structs.CarState, structs.CarStateSP]:
-    cp = can_parsers[Bus.pt]
+    cp = can_parsers[Bus.radar]
 
     ret = structs.CarState()
     ret_sp = structs.CarStateSP()
@@ -160,7 +160,7 @@ class CarState(CarStateBase, MadsCarState):
 
   def get_can_parser_defender(self, CP):
     return {
-      Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], [], CanBus.UNDERBODY),
+      Bus.radar: CANParser(DBC[CP.carFingerprint][Bus.radar], [], CanBus.UNDERBODY),
     }
 
   def get_can_parsers(self, CP, CP_SP):

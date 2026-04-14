@@ -5,6 +5,7 @@ from opendbc.car.lateral import apply_std_steer_angle_limits, apply_driver_steer
 from opendbc.car.interfaces import CarControllerBase
 from opendbc.car.landrover.landrovercan import create_lkas_command_defender, create_hud_command_defender, create_lkas_command, create_lkas_hud
 from opendbc.car.landrover.values import CarControllerParams, LandroverFlags, STATIC_MSGS
+from common.swaglog import cloudlog
 
 
 def process_hud_alert_rr(enabled, active, leftBs, rightBs, hud_control, counter):
@@ -78,7 +79,7 @@ class CarController(CarControllerBase):
     self.apply_torque_last = 0
     self.apply_angle_last = 0
 
-    self.packer = CANPacker(dbc_names[Bus.pt])
+    self.packer = CANPacker(dbc_names[Bus.radar])
     self.lkascnt = 0
     self.lrflag = 0
     self.main_on_last = False
@@ -89,6 +90,7 @@ class CarController(CarControllerBase):
 
     main_on = CS.out.cruiseState.available
 
+    #cloudlog.warning(f"enabled={CC.enabled}, cruise={CS.out.cruiseState.enabled}, gas={CS.out.gasPressed}")
     # Steering Torque
     new_torque = int(round(actuators.torque * self.params.STEER_MAX))
     apply_torque = apply_driver_steer_torque_limits(new_torque, self.apply_torque_last, CS.out.steeringTorque, self.params)
@@ -142,6 +144,8 @@ class CarController(CarControllerBase):
              ))
 
     else:
+      #if frame % 50 == 0:
+        #cloudlog.warning( f"EN={getattr(c, 'enabled', 'NA')} " f"cruise={CS.out.cruiseState.enabled} " f"gas={CS.out.gasPressed} " f"vEgo={CS.out.vEgo:.2f} " f"can={len(can_sends)}")
       # FLEXRAY_HARNESS
       if self.frame % 2 == 0:
         # Angular rate limit based on speed
@@ -178,5 +182,12 @@ class CarController(CarControllerBase):
     new_actuators.torqueOutputCan = apply_torque
 
     self.frame += 1
+
+    #cloudlog.info(f"openpilotLongitudinalControl={CC.openpilotLongitudinalControl}")
+
+    #if self.frame % 100 == 5:
+        #cloudlog.warning(f"sendcan_len={len(can_sends)} enabled={CC.enabled}")
+    #if self.frame % 100 == 0:
+        #cloudlog.warning(f"enabled={CC.enabled}, cruise={CS.out.cruiseState.enabled}, gas={CS.out.gasPressed}")
 
     return new_actuators, can_sends

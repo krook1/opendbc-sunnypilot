@@ -44,6 +44,9 @@ class CarInterface(CarInterfaceBase):
       ret.steerControlType = structs.CarParams.SteerControlType.angle
       ret.enableBsm = True
 
-    ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.landrover, ret.flags)]
+    ret.safetyConfigs = [
+      get_safety_config(structs.CarParams.SafetyModel.landrover, ret.flags),
+      get_safety_config(structs.CarParams.SafetyModel.allOutput),  # external panda
+    ]
 
     return ret
