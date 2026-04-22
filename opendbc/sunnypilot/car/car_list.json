@@ -1940,6 +1940,14 @@
     ],
     "package": "Adaptive Cruise Control (ACC)"
   },
+  "JLR EVA2": {
+    "platform": "JLR_EVA2",
+    "make": "JLR",
+    "brand": "LR",
+    "model": "RR Evoque",
+    "year": [2021],
+    "package": "All"
+  },
   "Kia Carnival 2022-24": {
     "platform": "KIA_CARNIVAL_4TH_GEN",
     "make": "Kia",
